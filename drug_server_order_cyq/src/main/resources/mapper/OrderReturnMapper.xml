@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jk.mapper.OrderReturnMapper">
+
+
+    <!-- 查询退货订单信息 -->
+    <select id="queryOrderReturnlist" resultType="com.jk.pojo.OrderReturn">
+       select * from c_orderreturn
+    </select>
+
+    <!-- 查询退货订单信息 -->
+    <update id="updateState" parameterType="int">
+       update c_orderreturn set orderReturnState = 2 where orderReturnId = #{orderId}
+    </update>
+
+   <!-- <insert id="saveClient">
+        insert into t_client(clientName,firmName,clientNumber,email,clientDate)
+         values(#{clientName},#{firmName},#{clientNumber},#{email},#{clientDate})
+    </insert>
+
+    <delete id="deleteClient" parameterType="int">
+        delete from t_client where clientId = #{mid}
+    </delete>
+
+    <select id="queryClientById" parameterType="int" resultType="com.jk.model.ClientModel">
+      select * from t_client where clientId = #{meid}
+    </select>
+
+    <update id="updateClient">
+       update t_client set clientName=#{clientName},firmName =#{firmName},clientNumber=#{clientNumber},
+       email=#{email},clientDate=#{clientDate} where clientId=#{mid}
+    </update>-->
+
+</mapper>

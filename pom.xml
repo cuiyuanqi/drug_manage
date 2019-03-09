@@ -9,11 +9,11 @@
     <packaging>pom</packaging>
     <version>1.0-SNAPSHOT</version>
     <modules>
-        <module>drug_commer</module>
         <module>drug_eureka</module>
-        <module>drug_feign</module>
-        <module>drug_provider</module>
         <module>drug_common</module>
+        <module>drug_server_api_order_cyq</module>
+        <module>drug_server_order_cyq</module>
+        <module>drug_web_order_cyq</module>
     </modules>
 
 

@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <!-- 引入jequery -->
+    <script type="text/javascript" src="/js/jquery.min.js"></script>
+    <!-- 引入bootstrap的css、js文件 -->
+    <link rel="stylesheet" href="/bootstrap3/css/bootstrap.css">
+    <script type="text/javascript" src="/bootstrap3/js/bootstrap.js"></script>
+    <link rel="stylesheet" href="/js/bootstrap-table/bootstrap-table.css">
+    <script type="text/javascript" src="/js/bootstrap-table/bootstrap-table.js"></script>
+    <script type="text/javascript" src="/js/bootstrap-table/locale/bootstrap-table-zh-CN.js"></script>
+    <script type="text/javascript" src="/js/bootstrap-bootbox/bootbox.js"></script>
+    <link rel="stylesheet" href="/js/bootstrap-datetimepicker/css/bootstrap-datetimepicker.css">
+    <link rel="stylesheet" href="/js/bootstrap-fileinput/css/fileinput.css">
+    <link rel="stylesheet" href="/js/bootstrap-fileinput/themes/explorer/theme.css">
+    <script type="text/javascript" src="/js/bootstrap-datetimepicker/js/bootstrap-datetimepicker.js"></script>
+    <script type="text/javascript" src="/js/bootstrap-datetimepicker/js/locales/bootstrap-datetimepicker.zh-CN.js"></script>
+    <script type="text/javascript" src="/js/bootstrap-fileinput/js/fileinput.min.js"></script>
+    <script type="text/javascript" src="/js/bootstrap-fileinput/js/locales/zh.js"></script>
+</head>
+<body>
+
+    <div id="tool">
+        <table id="datagrid"></table>
+    </div>
+
+</body>
+    <script>
+        $(function(){
+            datagrids();
+        })
+
+        function datagrids(){
+            $("#datagrid").bootstrapTable({
+                url:"/queryOrderReturnlist",
+                fit:true,
+                toolbar:"#tool",
+                columns:[[
+                    {field:"orderReturnId",checkbox:true},
+                    {field:"orderReturnName",title:"退货名字"},
+                    {field:"orderReturnImg",title:"退货图片"},
+                    {field:"orderReturnDate",title:"退货时间"},
+                    {field:"orderReturnNumber",title:"退货数量"},
+                    {field:"supplier",title:"供应商"},
+                    {field:"orderReturnMoney",title:"退货金额"},
+                    {field:"orderReturnState",title:"退货状态"},
+                    {field:"1",title:"操作",formatter:function(value,row,index){
+                            return "<a href='javascript:updateState("+row.orderReturnId+")'>确认</a>";
+                        }}
+                ]]
+            })
+        }
+
+        function updateState(orderReturnId){
+            $.ajax({
+                url:"/updateState",
+                data:{orderId:orderReturnId},
+                success:function(data){
+                }
+            })
+        }
+
+    </script>
+
+</html>
