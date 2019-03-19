@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+
+    <style type="text/css">
+        .myrow{
+            margin-bottom:10px
+        }
+    </style>
+</head>
+<body>
+<form id="userFrom">
+    <input type="hidden" name="id" id="id">
+    <div class="row myrow">
+        <div class="col-md-3">
+            <label for="vouchertype">发票类型</label>
+        </div>
+        <div class="col-md-9">
+            <input type="text" class="form-control" id="vouchertype" name="vouchertype">
+        </div>
+    </div>
+
+    <div class="row myrow">
+        <div class="col-md-3">
+            <label for="voucherDate">下单时间</label>
+        </div>
+        <div class="col-md-9">
+            <input type="text" class="form-control" id="voucherDate" name="voucherDate">
+        </div>
+    </div>
+
+    <div class="row myrow">
+        <div class="col-md-3">
+            <label for="voucherfirm">采构企业</label>
+        </div>
+        <div class="col-md-9">
+            <input type="text" class="form-control" id="voucherfirm" name="voucherfirm">
+        </div>
+    </div>
+
+    <div class="row myrow">
+        <div class="col-md-3">
+            <label for="vouName">采构人姓名</label>
+        </div>
+        <div class="col-md-9">
+            <input type="text" class="form-control" id="vouName" name="voucherName">
+        </div>
+    </div>
+
+
+    <div class="row myrow">
+        <div class="col-md-3">
+            <label for="voucherStatus">发票状态</label>
+        </div>
+        <div class="col-md-9">
+            <input type="radio" name="voucherStatus" value="1">已开票
+            <input type="radio" name="voucherStatus" value="2">待开票
+        </div>
+    </div>
+
+
+    <div class="row myrow">
+        <div class="col-md-3">
+            <label for="voucherdeptil">发票内容</label>
+        </div>
+        <div class="col-md-9">
+            <input type="text" class="form-control" id="voucherdeptil" name="voucherdeptil">
+        </div>
+    </div>
+
+
+    <div class="row myrow">
+        <div class="col-md-3">
+            <label for="voucherMany">发票金额</label>
+        </div>
+        <div class="col-md-9">
+            <input type="text" class="form-control" id="voucherMany" name="voucherMany">
+        </div>
+    </div>
+
+
+
+</form>
+</body>
+</html>

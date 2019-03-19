@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>销售订单</title>
+    <!-- 引入juquery -->
+    <script type="text/javascript" src="/js/jquery.min.js"></script>
+    <!-- 引入bootstrap的css、js -->
+    <link rel="stylesheet" href="/bootstrap3/css/bootstrap.css">
+    <script type="text/javascript" src="/bootstrap3/js/bootstrap.js"></script>
+    <!-- 引入table的css、js -->
+    <link rel="stylesheet" href="/js/bootstrap-table/bootstrap-table.css">
+    <script type="text/javascript" src="/js/bootstrap-table/bootstrap-table.js"></script>
+    <script type="text/javascript" src="/js/bootstrap-table/locale/bootstrap-table-zh-CN.js"></script>
+    <!-- 引入bootbox的js -->
+    <script type="text/javascript" src="/js/bootstrap-bootbox/bootbox.js"></script>
+    <!-- 引入日期的css、js -->
+    <link rel="stylesheet" href="/js/bootstrap-datetimepicker/css/bootstrap-datetimepicker.css">
+    <script type="text/javascript" src="/js/bootstrap-datetimepicker/js/bootstrap-datetimepicker.js"></script>
+    <script type="text/javascript" src="/js/bootstrap-datetimepicker/js/locales/bootstrap-datetimepicker.zh-CN.js"></script>
+    <!-- 引入文件上传的css、js -->
+    <link rel="stylesheet" href="/js/bootstrap-fileinput/css/fileinput.css">
+    <script type="text/javascript" src="/js/bootstrap-fileinput/js/fileinput.js"></script>
+    <script type="text/javascript" src="/js/bootstrap-fileinput/js/locales/zh.js"></script>
+
+
+</head>
+<body>
+
+<div id="toolbar">
+    <form class="form-inline">
+        <div class="form-group">
+            <label for="orderCode">订单号</label>
+            <input type="text" class="form-control" id="orderCode" placeholder="请输入订单号">
+        </div>
+        <div class="form-group" style="margin-left:10px">
+            <label for="stateDate">下单时间</label>
+            <input type="text" class="form-control date" id="stateDate" name="stateDate">
+            <input type="text" class="form-control date" id="endDate" name="endDate">
+        </div>
+        <button type="button" class="btn btn-primary glyphicon glyphicon-search" onclick="searchUser()">搜索</button>
+
+    </form>
+</div>
+
+    <table class="table" id="myTable">
+        <h7>销售中心 > 销售管理 > 销售订单</h7>
+    </table>
+</body>
+<script>
+    $(function(){
+        initTable();//初始化表格
+    })
+
+
+    $('.date').datetimepicker({
+        language: 'zh-CN',//显示中文
+        //format: 'yyyy-mm-dd hh:ii:ss',//显示格式
+        format: 'yyyy-mm-dd',//显示格式
+        minView: "month",//设置只显示到月份
+        initialDate: new Date(),//初始化当前日期
+        autoclose: true,//选中自动关闭
+        todayBtn: true//显示今日按钮
+    });
+
+     //条查
+    function searchUser(){
+        $('#myTable').bootstrapTable('refresh');
+    }
+
+    //初始化表格
+    function initTable(){
+        $("#myTable").bootstrapTable({
+            toolbar:'#toolbar',
+            url:"/findmarketlist",
+           pagination:true, //开启分页
+            pageList:[1, 10, 20, 50],//分页组件
+            pageNumber:1,
+            pageSize:10,//默认每页条数
+            sidePagination:'client',//分页方式：client客户端分页，server服务端分页
+            striped:true,//条纹表格
+            queryParams:function(){
+                return {
+                    page:this.pageNumber,
+                    rows:this.pageSize,
+                    orderCode:$("#orderCode").val(),
+                   stateDate:$("#stateDate").val(),
+                    endDate:$("#endDate").val()
+                };
+            },
+            columns:[
+                {field:"check",checkbox:true},
+                {field:"orderid",title:"ID"},
+                {field:"orderCode",title:"采购商品",formatter:function(value, row, index){
+                       return  value +"--"+ row.orderName+ "--"+ row.orderDrugSpecification+"/盒";
+                }},
+                {field:"orderNumber",title:"采购数量"},
+                {field:"orderGeneralize",title:"推广产品",formatter:function(value,row,index){
+                        if(value==1){
+                            return  "是";
+                        }else if(value==2){
+                            return  "否";
+                        }
+                    }},
+                {field:"orderaActivity",title:"活动产品",formatter:function(value,row,index){
+                       if(value==1){
+                           return  "是";
+                       }else  if(value==2){
+                           return  "否";
+                        }
+                    }},
+                {field:"orderGathering",title:"总收款"},
+                {field:"orderTime",title:"下单时间"},
+                {field:"orderState",title:"订单状态",formatter:function(value, row, index){
+                          if(value==1){ return "待支付";}
+                          else if(value==2){return  "待发货";}
+                          else if(value==3){return  "配送中";}
+                          else if(value==4){return  "待收货";}
+                          else if(value==5){return  "已完成";}
+                    }},
+                {field:"tools",title:"操作",formatter:function(value,row,index){
+                       if(row.orderState==1){
+                           return "<a href='javascript:lookorder("+row.orderid+")'>查看订单</a> &nbsp;&nbsp;&nbsp; <a href='javascript:deliverorder("+row.id+")'>取消订单</a>";
+                       }else if(row.orderState==2){
+                           return  "<a href='javascript:goodsorder("+row.orderid+")'>发货</a> &nbsp;&nbsp;&nbsp; <a href='javascript:lookorder("+row.orderid+")'>查看订单</a>";
+                       }else if(row.orderState==3){
+                           return  "<a href='javascript:lookorder("+row.orderid+")'>查看订单</a>";
+                       }else if(row.orderState==4){
+                           return  "<a href='javascript:lookorder("+row.orderid+")'>查看订单</a>";
+                       }else if(row.orderState==5){
+                           return  "<a href='javascript:lookorder("+row.orderid+")'>查看订单</a>";
+                       }
+
+                    }}
+            ]
+        })
+    }
+
+    //取消订单
+    function  deliverorder(ids){
+        var rows = $('#myTable').bootstrapTable('getSelections'); //获取表选择的行
+        if(rows.length<=0){
+            // 没选择
+            bootbox.alert({
+                size: "small",
+                title: "提示",
+                message: "请选择至少一行数据",
+                callback: function(){},
+                buttons: {
+                    ok: {
+                        label: '确定',
+                        className: 'btn-success'
+                    }
+                }
+            })
+        }else{
+            //提示确认是否删除
+            bootbox.confirm({
+                size: "small",
+                title:"提示",
+                message: "是否确认删除?",
+                buttons: {
+                    confirm: {
+                        label: '确定',
+                        className: 'btn-success'
+                    },
+                    cancel: {
+                        label: '取消',
+                        className: 'btn-danger'
+                    }
+                },
+                callback: function (result) {
+                    if(result){
+                        var ids="";
+                        for(var i=0;i<rows.length;i++){
+                            ids+=ids==""?rows[i].orderid:","+rows[i].orderid;
+                        }
+
+                        //后台ajax删除
+                        $.ajax({
+                            url:"/deletemarket/"+ids,
+                            type:"delete",
+                            success:function(){
+                                bootbox.alert({
+                                    size: "small",
+                                    title: "提示",
+                                    message: "删除成功！",
+                                    callback: function(){},
+                                    buttons: {
+                                        ok: {
+                                            label: '确定',
+                                            className: 'btn-success'
+                                        }
+                                    }
+                                })
+                                //刷新表格
+                                $('#myTable').bootstrapTable('refresh');
+                            }
+                        })
+
+                    }
+                }
+            })
+        }
+    }
+
+    //发货
+    function  goodsorder(orderid){
+            $.ajax({
+                url:'/updateInvoiceStatus/'+orderid,
+                type:'put',
+                success:function(){
+                    $('#myTable').bootstrapTable('refresh');
+                }
+            })
+
+    }
+    var res;
+    function createAddContent(url){
+        $.ajax({
+            url:url,
+            async:false,
+            success:function(data){
+                res = data;
+            }
+        });
+        return res;
+    }
+
+
+    //订单回显
+    function lookorder(orderid) {
+        bootbox.dialog({
+            title: '订单回显',
+            message: createAddContent("/toUpdateOrderList"),
+            closeButton: true,//是否显示关闭按钮
+            buttons: {
+                "success": {
+                    "label": "<i class='icon-ok'></i> 关闭",
+                    "className": "btn-sm btn-success",
+                    "callback": function () {
+                        $.ajax({
+                            url: '/queryMarketOrderPage',
+                            type: 'put',
+                            data: $("#marketOrderForm").serialize(),
+                            success: function (data) {
+                                $('#myTable').bootstrapTable('refresh');
+                            }
+                        });
+                    }
+                },
+                "cancel": {
+                    "label": "<i class='icon-info'></i> 取消",
+                    "className": "btn-sm btn-danger",
+                    "callback": function () {
+
+                    }
+                }
+            }
+
+        });
+
+        //回显数据
+        $.ajax({
+            url: '/findMarketOrderById',
+            type: 'post',
+            async: false,
+            data: {orderid:orderid},
+            success: function (data) {
+                $("#orderid").val(data.orderid);
+                $("#code").val(data.orderCode);
+                $("#orderName").val(data.orderName);
+                $("#orderDrugSpecification").val(data.orderDrugSpecification);
+                $("#orderNumber").val(data.orderNumber);
+                $("#orderGathering").val(data.orderGathering);
+            }
+        })
+    }
+</script>
+</html>

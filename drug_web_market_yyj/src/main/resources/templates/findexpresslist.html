@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>配送查询</title>
+    <!-- 引入juquery -->
+    <script type="text/javascript" src="/js/jquery.min.js"></script>
+    <!-- 引入bootstrap的css、js -->
+    <link rel="stylesheet" href="/bootstrap3/css/bootstrap.css">
+    <script type="text/javascript" src="/bootstrap3/js/bootstrap.js"></script>
+    <!-- 引入table的css、js -->
+    <link rel="stylesheet" href="/js/bootstrap-table/bootstrap-table.css">
+    <script type="text/javascript" src="/js/bootstrap-table/bootstrap-table.js"></script>
+    <script type="text/javascript" src="/js/bootstrap-table/locale/bootstrap-table-zh-CN.js"></script>
+    <!-- 引入bootbox的js -->
+    <script type="text/javascript" src="/js/bootstrap-bootbox/bootbox.js"></script>
+    <!-- 引入日期的css、js -->
+    <link rel="stylesheet" href="/js/bootstrap-datetimepicker/css/bootstrap-datetimepicker.css">
+    <script type="text/javascript" src="/js/bootstrap-datetimepicker/js/bootstrap-datetimepicker.js"></script>
+    <script type="text/javascript" src="/js/bootstrap-datetimepicker/js/locales/bootstrap-datetimepicker.zh-CN.js"></script>
+    <!-- 引入文件上传的css、js -->
+    <link rel="stylesheet" href="/js/bootstrap-fileinput/css/fileinput.css">
+    <script type="text/javascript" src="/js/bootstrap-fileinput/js/fileinput.js"></script>
+    <script type="text/javascript" src="/js/bootstrap-fileinput/js/locales/zh.js"></script>
+
+
+</head>
+<body>
+
+<div id="toolbar">
+    <form class="form-inline">
+        <button type="button" class="btn btn-primary" onclick="openAdd()">新增</button>
+    </form>
+</div>
+
+
+
+<table class="table" id="youTable">
+    <h7>销售中心 > 店铺设置 > 配送方式 </h7>
+</table>
+</body>
+<script>
+
+    $(function(){
+        initTable();//初始化表格
+    })
+
+     //条查
+        function searchUser(){
+            $('#youTable').bootstrapTable('refresh');
+        }
+
+    //初始化表格
+    function initTable(){
+        $("#youTable").bootstrapTable({
+            toolbar:'#toolbar',
+            url:"/findexpresslist",
+
+            pagination:true, //开启分页
+            pageList:[1, 10, 20, 50],//分页组件
+            pageNumber:1,
+            pageSize:10,//默认每页条数
+            sidePagination:'client',//分页方式：client客户端分页，server服务端分页
+            striped:true,//条纹表格
+            queryParams:function(){
+                return {
+                    page:this.pageNumber,
+                    rows:this.pageSize
+
+                };
+            },
+            columns:[
+                {field:"check",checkbox:true},
+                {field:"expressName",title:"快递名称"},
+                {field:"expressTime",title:"创建时间"},
+                {field:"tools",title:"操作",formatter:function(value,row,index){
+                        return  "<a href='javascript:lookorder("+row.expressId+")'>删除</a>";
+
+                    }}
+            ]
+        })
+    }
+
+
+    //删除
+    function  lookorder(expressId){
+        //后台ajax删除
+        $.ajax({
+            url:"/deleteExpress/",
+            type:"delete",
+            data:{ids:expressId},
+            success:function(){
+                bootbox.alert({
+                    size: "small",
+                    title: "提示",
+                    message: "删除成功！",
+                    callback: function(){},
+                    buttons: {
+                        ok: {
+                            label: '确定',
+                            className: 'btn-success'
+                        }
+                    }
+                })
+                //刷新表格
+                $('#youTable').bootstrapTable('refresh');
+            }
+        })
+
+    }
+
+    var res;
+    function createAddContent(url){
+        $.ajax({
+            url:url,
+            async:false,
+            success:function(data){
+                res = data;
+            }
+        });
+        return res;
+    }
+
+    //打开新增弹框
+    function openAdd(){
+        bootbox.dialog({
+            title:'添加用户',
+            message: createAddContent("/toaddexpress"),
+            closeButton: true,//是否显示关闭按钮
+            buttons : {
+                "success" : {
+                    "label" : "<i class='icon-ok'></i> 保存",
+                    "className" : "btn-sm btn-success",
+                    "callback" : function() {
+                        $.ajax({
+                            url:'/findaddexpresslist',
+                            type:'post',
+                            data:$("#userFrom").serialize(),
+                            success:function(){
+                                $('#youTable').bootstrapTable('refresh');
+
+                            }
+                        });
+                    }
+                },
+                "cancel" : {
+                    "label" : "<i class='icon-info'></i> 取消",
+                    "className" : "btn-sm btn-danger",
+                    "callback" : function() {
+
+                    }
+                }
+            }
+
+        });
+    }
+
+</script>
+</html>

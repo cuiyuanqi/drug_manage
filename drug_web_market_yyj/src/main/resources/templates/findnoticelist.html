@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>公告管理</title>
+
+    <!-- 引入juquery -->
+    <script type="text/javascript" src="/js/jquery.min.js"></script>
+    <!-- 引入bootstrap的css、js -->
+    <link rel="stylesheet" href="/bootstrap3/css/bootstrap.css">
+    <script type="text/javascript" src="/bootstrap3/js/bootstrap.js"></script>
+    <!-- 引入table的css、js -->
+    <link rel="stylesheet" href="/js/bootstrap-table/bootstrap-table.css">
+    <script type="text/javascript" src="/js/bootstrap-table/bootstrap-table.js"></script>
+    <script type="text/javascript" src="/js/bootstrap-table/locale/bootstrap-table-zh-CN.js"></script>
+    <!-- 引入bootbox的js -->
+    <script type="text/javascript" src="/js/bootstrap-bootbox/bootbox.js"></script>
+    <!-- 引入日期的css、js -->
+    <link rel="stylesheet" href="/js/bootstrap-datetimepicker/css/bootstrap-datetimepicker.css">
+    <script type="text/javascript" src="/js/bootstrap-datetimepicker/js/bootstrap-datetimepicker.js"></script>
+    <script type="text/javascript" src="/js/bootstrap-datetimepicker/js/locales/bootstrap-datetimepicker.zh-CN.js"></script>
+    <!-- 引入文件上传的css、js -->
+    <link rel="stylesheet" href="/js/bootstrap-fileinput/css/fileinput.css">
+    <script type="text/javascript" src="/js/bootstrap-fileinput/js/fileinput.js"></script>
+    <script type="text/javascript" src="/js/bootstrap-fileinput/js/locales/zh.js"></script>
+</head>
+<body>
+
+<div id="toolbar">
+    <form class="form-inline">
+        <div class="form-group">
+            <label for="noticeName">公告标题</label>
+            <input type="text" class="form-control" id="noticeName" placeholder="请输入公告标题">
+        </div>
+        <div class="form-group" style="margin-left:10px">
+            <label for="stateDate">日期</label>
+            <input type="text" class="form-control date" id="stateDate" name="stateDate">
+            <input type="text" class="form-control date" id="endDate" name="endDate">
+        </div>
+        <button type="button" class="btn btn-primary glyphicon glyphicon-search" onclick="searchUser()">搜索</button>
+    </form>
+    <button type="button" class="btn btn-primary" onclick="openAdd()">新增</button>
+</div>
+
+<table class="table" id="youTable">
+    <h7>销售中心 > 店铺设置 > 公告管理</h7>
+</table>
+</body>
+<script>
+
+    $(function(){
+        initTable();//初始化表格
+    })
+
+    $('.date').datetimepicker({
+        language: 'zh-CN',//显示中文
+        //format: 'yyyy-mm-dd hh:ii:ss',//显示格式
+        format: 'yyyy-mm-dd',//显示格式
+        minView: "month",//设置只显示到月份
+        initialDate: new Date(),//初始化当前日期
+        autoclose: true,//选中自动关闭
+        todayBtn: true//显示今日按钮
+    });
+
+
+
+
+       //条查
+        function searchUser(){
+            $('#youTable').bootstrapTable('refresh');
+        }
+
+    //初始化表格
+    function initTable(){
+        $("#youTable").bootstrapTable({
+            toolbar:'#toolbar',
+            url:"/findnoticelist",
+            pagination:true, //开启分页
+            pageList:[1, 10, 20, 50],//分页组件
+            pageNumber:1,
+            pageSize:10,//默认每页条数
+            sidePagination:'client',//分页方式：client客户端分页，server服务端分页
+            striped:true,//条纹表格
+            queryParams:function(){
+                return {
+                    page:this.pageNumber,
+                    rows:this.pageSize,
+                    noticeName:$("#noticeName").val(),
+                    stateDate:$("#stateDate").val(),
+                    endDate:$("#endDate").val()
+                };
+            },
+            columns:[
+                {field:"check",checkbox:true},
+                {field:"noticeName",title:"公告标题"},
+                {field:"noticeState",title:"显示状态",formatter:function(value,row,index){
+                        if(value==1){
+                            return  "上线";
+                        }else if(value==2){
+                            return  "下线";
+                        }
+                    }},
+                {field:"noticeDate",title:"创建时间"},
+                {field:"tools",title:"操作",formatter:function(value,row,index){
+
+                        str = "<a href='javascript:updateSize("+row.noticeId+")'>编辑</a> &nbsp;&nbsp;&nbsp;&nbsp;";
+                        str += "<a href='javascript:deleteOrder("+row.noticeId+")'>删除</a> &nbsp;&nbsp;&nbsp;&nbsp;";
+
+                        if(row.noticeState==1){
+                            str += "<a href='javascript:lookorder("+row.noticeId+")'>下线</a>";
+                        }else if(row.noticeState==2){
+                            str +=  "<a href='javascript:goodsorder("+row.noticeId+")'>上线</a> ";
+                        }
+
+                          return  str;
+
+                    }}
+            ]
+        })
+    }
+
+    //上线
+    function  lookorder(noticeId){
+        $.ajax({
+            url:'/findstatus/'+noticeId,
+            type:'put',
+            success:function(){
+                $('#youTable').bootstrapTable('refresh');
+            }
+        })
+
+    }
+
+    //下线
+    function  goodsorder(noticeId){
+        $.ajax({
+            url:'/findstatusdown/'+noticeId,
+            type:'put',
+            success:function(){
+                $('#youTable').bootstrapTable('refresh');
+            }
+        })
+
+    }
+
+    //删除
+    function  deleteOrder(noticeId){
+        //后台ajax删除
+        $.ajax({
+            url:"/deletenotice/",
+            type:"delete",
+            data:{ids:noticeId},
+            success:function(){
+                bootbox.alert({
+                    size: "small",
+                    title: "提示",
+                    message: "删除成功！",
+                    callback: function(){},
+                    buttons: {
+                        ok: {
+                            label: '确定',
+                            className: 'btn-success'
+                        }
+                    }
+                })
+                //刷新表格
+                $('#youTable').bootstrapTable('refresh');
+            }
+        })
+    }
+
+    var res;
+    function createAddContent(url){
+        $.ajax({
+            url:url,
+            async:false,
+            success:function(data){
+                res = data;
+            }
+        });
+        return res;
+    }
+
+    function openAdd() {
+        bootbox.dialog({
+            title: '新增公告',
+            message: createAddContent("/tofindaddnotice"),
+            closeButton: true,//是否显示关闭按钮
+            buttons: {
+                "success": {
+                    "label": "<i class='icon-ok'></i> 保存",
+                    "className": "btn-sm btn-success",
+                    "callback": function () {
+                        $.ajax({
+                            url: '/findaddnoticelist',
+                            type: 'post',
+                            data: $("#userFrom").serialize(),
+                            success: function (data) {
+                                $('#youTable').bootstrapTable('refresh');
+                            }
+                        });
+                    }
+                },
+                "cancel": {
+                    "label": "<i class='icon-info'></i> 取消",
+                    "className": "btn-sm btn-danger",
+                    "callback": function () {
+
+                    }
+                }
+            }
+
+        });
+    }
+
+    //打开修改弹框
+    function updateSize(noticeId){
+        //打开弹框
+        bootbox.dialog({
+            title:'修改用户',
+            message: createAddContent("/toupdateNotice"),
+            closeButton: true,//是否显示关闭按钮
+            buttons : {
+                "success" : {
+                    "label" : "<i class='icon-ok'></i> 保存",
+                    "className" : "btn-sm btn-success",
+                    "callback" : function() {
+                        $.ajax({
+                            url:'/updateNotice',
+                            data:$("#userFrom").serialize(),
+                            success:function(){
+                                //$('#myTable').bootstrapTable('refresh');
+                                searchUser();
+                            }
+                        });
+                    }
+                },
+                "cancel" : {
+                    "label" : "<i class='icon-info'></i> 取消",
+                    "className" : "btn-sm btn-danger",
+                    "callback" : function() {
+
+                    }
+                }
+            }
+
+        });
+        //回显数据
+        $.ajax({
+            url:'/findnoticeById',
+            async:false,//同步
+            data:{id:noticeId},
+            success:function(data){
+                $("#id").val(data.noticeId);
+                $("#noticen").val(data.noticeName);
+            }
+        });
+    }
+
+
+</script>
+
+</html>
