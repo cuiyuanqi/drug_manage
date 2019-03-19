@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>退货管理</title>
+    <!-- 引入juquery -->
+    <script type="text/javascript" src="/js/jquery.min.js"></script>
+    <!-- 引入bootstrap的css、js -->
+    <link rel="stylesheet" href="/bootstrap3/css/bootstrap.css">
+    <script type="text/javascript" src="/bootstrap3/js/bootstrap.js"></script>
+    <!-- 引入table的css、js -->
+    <link rel="stylesheet" href="/js/bootstrap-table/bootstrap-table.css">
+    <script type="text/javascript" src="/js/bootstrap-table/bootstrap-table.js"></script>
+    <script type="text/javascript" src="/js/bootstrap-table/locale/bootstrap-table-zh-CN.js"></script>
+    <!-- 引入bootbox的js -->
+    <script type="text/javascript" src="/js/bootstrap-bootbox/bootbox.js"></script>
+    <!-- 引入日期的css、js -->
+    <link rel="stylesheet" href="/js/bootstrap-datetimepicker/css/bootstrap-datetimepicker.css">
+    <script type="text/javascript" src="/js/bootstrap-datetimepicker/js/bootstrap-datetimepicker.js"></script>
+    <script type="text/javascript" src="/js/bootstrap-datetimepicker/js/locales/bootstrap-datetimepicker.zh-CN.js"></script>
+    <!-- 引入文件上传的css、js -->
+    <link rel="stylesheet" href="/js/bootstrap-fileinput/css/fileinput.css">
+    <script type="text/javascript" src="/js/bootstrap-fileinput/js/fileinput.js"></script>
+    <script type="text/javascript" src="/js/bootstrap-fileinput/js/locales/zh.js"></script>
+
+
+</head>
+<body>
+
+<div id="toolbar">
+    <form class="form-inline">
+
+        <div class="form-group" >
+            <label for="returnCode">订单号</label>
+            <input type="text" class="form-control" id="returnCode" name="returnCode">
+        </div>
+        <div class="form-group" style="margin-left:10px">
+            <label for="purchaseName">采购商</label>
+            <input type="text" class="form-control" id="purchaseName" name="purchaseName">
+        </div>
+        <div class="form-group" style="margin-left:10px">
+            <label for="stateDate">退货时间</label>
+            <input type="text" class="form-control date" id="stateDate" name="stateDate">
+            <input type="text" class="form-control date" id="endDate" name="endDate">
+        </div>
+        <button type="button" class="btn btn-primary glyphicon glyphicon-search" onclick="searchUser()">搜索</button>
+
+    </form>
+</div>
+
+
+
+<table class="table" id="youTable">
+    <h7>销售中心 > 销售管理 > 退货订单</h7>
+</table>
+
+
+</body>
+<script>
+    $(function(){
+        initTable();//初始化表格
+    })
+
+     //条查
+        function searchUser(){
+            $('#youTable').bootstrapTable('refresh');
+        }
+
+    $('.date').datetimepicker({
+        language: 'zh-CN',//显示中文
+        //format: 'yyyy-mm-dd hh:ii:ss',//显示格式
+        format: 'yyyy-mm-dd',//显示格式
+        minView: "month",//设置只显示到月份
+        initialDate: new Date(),//初始化当前日期
+        autoclose: true,//选中自动关闭
+        todayBtn: true//显示今日按钮
+    });
+
+    //初始化表格
+    function initTable(){
+        $("#youTable").bootstrapTable({
+            toolbar:'#toolbar',
+            url:"/findreturnlist",
+
+            pagination:true, //开启分页
+            pageList:[1, 10, 20, 50],//分页组件
+            pageNumber:1,
+            pageSize:10,//默认每页条数
+            sidePagination:'client',//分页方式：client客户端分页，server服务端分页
+            striped:true,//条纹表格
+            queryParams:function(){
+                return {
+                    page:this.pageNumber,
+                    rows:this.pageSize,
+                    returnCode:$("#returnCode").val(),
+                    purchaseName:$("#purchaseName").val(),
+                    stateDate:$("#stateDate").val(),
+                    endDate:$("#endDate").val()
+                };
+            },
+            columns:[
+                {field:"check",checkbox:true},
+                {field:"orderCode",title:"订单号"},
+                {field:"returnCode",title:"退货单号"},
+                {field:"returnName",title:"退货商品"},
+                {field:"returnDate",title:"退货时间"},
+                {field:"purchaseName",title:"采购商"},
+                {field:"proposerName",title:"申请人"},
+                {field:"price",title:"退货金额"},
+                {field:"returnState",title:"退货状态",formatter:function(value,row,index){
+                        if(value==1){
+                            return  "未确认";
+                        }else if(value==2){
+                            return  "已确认";
+                        }
+                    }},
+                {field:"tools",title:"操作",formatter:function(value,row,index){
+                        if(row.returnState==1){
+                            return "<a href='javascript:lookorder("+row.returnId+")'>确认</a>";
+                        }else if(row.returnState==2){
+                            return  "<a href='javascript:goodsorder("+row.returnId+")'>查看</a> ";
+                        }
+
+                    }}
+            ]
+        })
+    }
+
+    //发货
+    function  lookorder(returnId){
+        $.ajax({
+            url:'/updateStatus/'+returnId,
+            type:'put',
+            success:function(){
+                $('#youTable').bootstrapTable('refresh');
+            }
+        })
+
+    }
+
+    //打开修改弹框
+    function goodsorder(returnId){
+        //打开弹框
+        bootbox.dialog({
+            title:'修改用户',
+            message: createAddContent("/toupdatereturn"),
+            closeButton: true,//是否显示关闭按钮
+            buttons : {
+                "success" : {
+                    "label" : "<i class='icon-ok'></i> 保存",
+                    "className" : "btn-sm btn-success",
+                    "callback" : function() {
+                        $.ajax({
+                            url:'<%=request.getContextPath() %>/book/saveUser.do',
+                            type:'post',
+                            data:$("#userFrom").serialize(),
+                            success:function(){
+                                //$('#myTable').bootstrapTable('refresh');
+                                searchUser();
+                            }
+                        });
+                    }
+                },
+                "cancel" : {
+                    "label" : "<i class='icon-info'></i> 取消",
+                    "className" : "btn-sm btn-danger",
+                    "callback" : function() {
+
+                    }
+                }
+            }
+
+        });
+        //回显数据
+        $.ajax({
+
+            url:'/findreturnById',
+            async:false,//同步
+            data:{returnId:returnId},
+            success:function(data){
+                $("#returnId").val(data.returnId);
+                $("#return").val(data.returnCode);
+                $("#orderCode").val(data.orderCode);
+                $("#returnName").val(data.returnName);
+                $("#returnDate").val(data.returnDate);
+                $("#purchase").val(data.purchaseName);
+                $("#proposerName").val(data.proposerName);
+                $("#price").val(data.price);
+
+            }
+        });
+    }
+
+    var res;
+    function createAddContent(url){
+        $.ajax({
+            url:url,
+            async:false,
+            success:function(data){
+                res = data;
+            }
+        });
+        return res;
+    }
+
+
+
+</script>
+</html>

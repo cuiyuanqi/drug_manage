@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>发货查询</title>
+
+    <!-- 引入juquery -->
+    <script type="text/javascript" src="/js/jquery.min.js"></script>
+    <!-- 引入bootstrap的css、js -->
+    <link rel="stylesheet" href="/bootstrap3/css/bootstrap.css">
+    <script type="text/javascript" src="/bootstrap3/js/bootstrap.js"></script>
+    <!-- 引入table的css、js -->
+    <link rel="stylesheet" href="/js/bootstrap-table/bootstrap-table.css">
+    <script type="text/javascript" src="/js/bootstrap-table/bootstrap-table.js"></script>
+    <script type="text/javascript" src="/js/bootstrap-table/locale/bootstrap-table-zh-CN.js"></script>
+    <!-- 引入bootbox的js -->
+    <script type="text/javascript" src="/js/bootstrap-bootbox/bootbox.js"></script>
+    <!-- 引入日期的css、js -->
+    <link rel="stylesheet" href="/js/bootstrap-datetimepicker/css/bootstrap-datetimepicker.css">
+    <script type="text/javascript" src="/js/bootstrap-datetimepicker/js/bootstrap-datetimepicker.js"></script>
+    <script type="text/javascript" src="/js/bootstrap-datetimepicker/js/locales/bootstrap-datetimepicker.zh-CN.js"></script>
+    <!-- 引入文件上传的css、js -->
+    <link rel="stylesheet" href="/js/bootstrap-fileinput/css/fileinput.css">
+    <script type="text/javascript" src="/js/bootstrap-fileinput/js/fileinput.js"></script>
+    <script type="text/javascript" src="/js/bootstrap-fileinput/js/locales/zh.js"></script>
+
+
+
+</head>
+<body>
+
+<div id="toolbar">
+    <form class="form-inline">
+        <div class="form-group">
+            <label for="orderName">商品名称</label>
+            <input type="text" class="form-control" id="orderName" placeholder="请输入商品名称">
+        </div>
+        <div class="form-group" style="margin-left:10px">
+            <label for="stateDate">下单时间</label>
+            <input type="text" class="form-control date" id="stateDate" name="stateDate">
+            <input type="text" class="form-control date" id="endDate" name="endDate">
+        </div>
+        <button type="button" class="btn btn-primary glyphicon glyphicon-search" onclick="searchUser()">搜索</button>
+
+    </form>
+</div>
+
+
+
+<table class="table" id="youTable">
+    <h7>销售中心 > 销售管理 > 发货查询</h7>
+</table>
+</body>
+<script>
+    $(function(){
+        initTable();//初始化表格
+    })
+
+     //条查
+        function searchUser(){
+            $('#youTable').bootstrapTable('refresh');
+        }
+
+    $('.date').datetimepicker({
+        language: 'zh-CN',//显示中文
+        //format: 'yyyy-mm-dd hh:ii:ss',//显示格式
+        format: 'yyyy-mm-dd',//显示格式
+        minView: "month",//设置只显示到月份
+        initialDate: new Date(),//初始化当前日期
+        autoclose: true,//选中自动关闭
+        todayBtn: true//显示今日按钮
+    });
+
+    //初始化表格
+    function initTable(){
+        $("#youTable").bootstrapTable({
+            toolbar:'#toolbar',
+            url:"/finddeliverlist",
+
+            pagination:true, //开启分页
+            pageList:[1, 10, 20, 50],//分页组件
+            pageNumber:1,
+            pageSize:10,//默认每页条数
+            sidePagination:'client',//分页方式：client客户端分页，server服务端分页
+            striped:true,//条纹表格
+            queryParams:function(){
+                return {
+                    page:this.pageNumber,
+                    rows:this.pageSize,
+                    orderName:$("#orderName").val(),
+                    stateDate:$("#stateDate").val(),
+                    endDate:$("#endDate").val()
+
+                };
+            },
+            columns:[
+                {field:"check",checkbox:true},
+                {field:"orderName",title:"商品名称"},
+                {field:"orderTime",title:"下单时间"},
+                {field:"orderDrugSpecification",title:"规格",formatter(value,row,index){
+                        return  value + "/盒";
+                    }},
+                {field:"orderNumber",title:"发货数量"},
+                {field:"orderPrice",title:"商品价格"},
+                {field:"orderAggregate",title:"总价格"}
+            ]
+        })
+    }
+
+</script>
+</html>

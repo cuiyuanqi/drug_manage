@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>回显销售订单</title>
+    <style type="text/css">
+        .myrow{
+            margin-bottom:10px
+        }
+    </style>
+
+
+</head>
+<body>
+
+<form id="userFrom">
+    <input type="hidden" name="orderid" id="orderid">
+    <div class="row myrow">
+        <div class="col-md-3">
+            <label for="code">订单号</label>
+        </div>
+        <div class="col-md-9">
+            <input type="text" class="form-control" id="code" name="orderCode">
+        </div>
+    </div>
+
+    <div class="row myrow">
+        <div class="col-md-3">
+            <label for="orderName">商品名称</label>
+        </div>
+        <div class="col-md-9">
+            <input type="text" class="form-control" id="orderName" name="orderName">
+        </div>
+    </div>
+
+    <div class="row myrow">
+        <div class="col-md-3">
+            <label for="orderDrugSpecification">规格</label>
+        </div>
+        <div class="col-md-9">
+            <input type="text" class="form-control" id="orderDrugSpecification" name="orderDrugSpecification">
+        </div>
+    </div>
+
+    <div class="row myrow">
+        <div class="col-md-3">
+            <label for="orderNumber">采购数量</label>
+        </div>
+        <div class="col-md-9">
+            <input type="text" class="form-control" id="orderNumber" name="orderNumber">
+        </div>
+    </div>
+
+    <div class="row myrow">
+        <div class="col-md-3">
+            <label for="orderGathering">总收款</label>
+        </div>
+        <div class="col-md-9">
+            <input type="text" class="form-control" id="orderGathering" name="orderGathering">
+        </div>
+    </div>
+
+
+</form>
+
+
+</body>
+<script>
+
+    $(function(){
+        $('.date').datetimepicker({
+            language: 'zh-CN',//显示中文
+            //format: 'yyyy-mm-dd hh:ii:ss',//显示格式
+            format: 'yyyy-mm-dd',//显示格式
+            minView: "month",//设置只显示到月份
+            initialDate: new Date(),//初始化当前日期
+            autoclose: true,//选中自动关闭
+            todayBtn: true//显示今日按钮
+        });
+    })
+</script>
+</html>
