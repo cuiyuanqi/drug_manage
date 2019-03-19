@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jk.mapper.UserMapper">
+
+
+    <select id="queryList" resultType="com.jk.pojo.User">
+        select * from user
+    </select>
+
+
+    <select id="queryCommodity" resultType="com.jk.pojo.Commodity">
+        select * from commo
+    </select>
+    <select id="querySite" resultType="com.jk.pojo.Site">
+        select * from t_site
+    </select>
+
+    <insert id="saveCommodity" parameterType="com.jk.pojo.Commodity">
+    insert into commo(commoName,commoId,commoSpecifications,manuFacturer,
+    approvalNumber,commoPrice,commoLnventory,commoState,commoDate)
+    values(#{commoName},#{commoId},#{commoSpecifications},#{manuFacturer},#{approvalNumber},#{commoPrice},#{commoLnventory},#{commoState},#{commoDate})</insert>
+
+    <delete id="deleteGoods" parameterType="int">delete  from commo where id=#{id}</delete>
+
+    <delete id="deleteSite" parameterType="int">delete  from t_site where id=#{id}</delete>
+
+    <insert id="saveSite" parameterType="com.jk.pojo.Site">
+   insert into t_site (consignee,region,detailedAddress,postcode,telephone)values(#{consignee},#{region},#{detailedAddress},#{postcode},#{telephone})</insert>
+
+    <select id="selectShopById" resultType="com.jk.pojo.Site">
+    select * from t_site where id=#{id}
+</select>
+
+    <update id="updateSite" parameterType="com.jk.pojo.Site">
+        update t_site set consignee=#{consignee},region=#{region},detailedAddress=#{detailedAddress},postcode=#{postcode},telephone=#{telephone} where id=#{id}
+
+
+    </update>
+    <select id="selectComomId" resultType="com.jk.pojo.Commodity">
+        select * from commo where id=#{id};
+
+    </select>
+    <update id="updateCommodity" parameterType="com.jk.pojo.Commodity">
+        update commo set commoName=#{commoName},commoId=#{commoId},commoSpecifications=#{commoSpecifications},manuFacturer=#{manuFacturer},approvalNumber=#{approvalNumber},commoPrice=#{commoPrice},
+         commoLnventory=#{commoLnventory},commoState=#{commoState},commoDate=#{commoDate}
+         where id=#{id}
+
+    </update>
+    <update id="updatesxj" parameterType="com.jk.pojo.Commodity">
+        update commo set commoState= #{flag} where id in
+        (<foreach collection="array" item="ids" separator=",">
+              #{ids}
+         </foreach>)
+
+    </update>
+    <select id="updatepassword" resultType="com.jk.pojo.Password">
+        select * from password_user where id=#{id};
+
+    </select>
+    <select id="querypassword" resultType="com.jk.pojo.Password">
+        select * from password_user
+
+    </select>
+
+    <update id="updatepasswored" parameterType="com.jk.pojo.Password">
+        update password_user set password=#{password}
+         where id=#{id}
+    </update>
+
+</mapper>
