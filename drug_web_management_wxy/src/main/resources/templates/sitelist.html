@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <title>Insert title here</title>
+    <!-- 引入juquery -->
+    <script type="text/javascript" src="/js/jquery.min.js"></script>
+    <!-- 引入bootstrap的css、js -->
+    <link rel="stylesheet" href="/bootstrap3/css/bootstrap.css">
+    <script type="text/javascript" src="/bootstrap3/js/bootstrap.js"></script>
+    <!-- 引入table的css、js -->
+    <link rel="stylesheet" href="/js/bootstrap-table/bootstrap-table.css">
+    <script type="text/javascript" src="/js/bootstrap-table/bootstrap-table.js"></script>
+    <script type="text/javascript" src="/js/bootstrap-table/locale/bootstrap-table-zh-CN.js"></script>
+    <!-- 引入bootbox的js -->
+    <script type="text/javascript" src="/js/bootstrap-bootbox/bootbox.js"></script>
+</head>
+
+<body>
+<button type="button" class="btn btn-primary glyphicon glyphicon-search" onclick="searchUser()">搜索</button>
+<button type="button" class="btn btn-primary glyphicon glyphicon-plus" onclick="openEmp()">新增</button>
+<table class="table" id="myTable"></table>
+
+</body>
+<script>
+    $(function(){
+        initUserTable();//初始化用户表格数据
+    })
+    function initUserTable(){
+        $('#myTable').bootstrapTable({
+            url:"querySite",
+            type:"get",
+            columns:[
+                {field:"check",checkbox:true},
+                {field:"id",title:"id"},
+                {field:"consignee",title:"客户账号"},
+                {field:"region",title:"企业名称"},
+                {field:"detailedAddress",title:"企业详细地址"},
+                {field:"postcode",title:"公司编号"},
+                {field:"telephone",title:"公司电话"},
+                {field:"adsc",title:"操作",formatter:function(value,row,index) {
+                        return "<button type='button' class='btn btn btn-danger glyphicon glyphicon-pencil' " +
+                            "onclick='openEmp("+row.id+")'>修改</button> <button type='button' class='btn btn btn-danger glyphicon glyphicon-trash' onclick='deleteSite("+row.id+")'>删除</button>";
+                    }},
+            ]
+        });
+    }
+
+    var res;
+    function createAddContent(url){
+        $.ajax({
+            url:url,
+            async:false,
+            success:function(data){
+                res = data;
+            }
+        });
+        return res;
+    }
+    function openEmp(id){
+        bootbox.dialog({
+            title:'用户',
+            message: createAddContent("toAddSite"),
+            closeButton: true,//显示关闭按钮
+            buttons : {
+                "success" : {
+                    "label" : "<i class='icon-ok'></i> 保存",
+                    "className" : "btn-sm btn-success",
+                    "callback" : function() {
+                        $.ajax({
+                            url:'saveSite',
+                            type:'post',
+                            data:$("#myForm").serialize(),
+                            success:function(){
+
+                                $('#myTable').bootstrapTable('refresh');
+                            }
+                        });
+                    }
+                },
+                "cancel" : {
+                    "label" : "<i class='icon-info'></i> 取消",
+                    "className" : "btn-sm btn-danger",
+                    "callback" : function() {
+
+                    }
+                }
+            }
+
+        });
+        $.ajax({
+            url:"selectShopById",
+            data:{id:id},
+            success:function(data){
+                alert(data)
+                $("#id").val(data.id),
+                    $("#consignee").val(data.consignee),
+                    $("#region").val(data.region),
+                    $("#detailedAddress").val(data.detailedAddress),
+                    $("#postcode").val(data.postcode),
+                    $("#telephone").val(data.telephone)
+            }
+        })
+    }
+
+    //单删
+    function deleteSite(id){
+        bootbox.confirm({
+            size: "small",
+            title:"提示",
+            message: "是否确认删除?",
+            buttons: {
+                confirm: {
+                    label: '确定',
+                    className: 'btn-success'
+                },
+                cancel: {
+                    label: '取消',
+                    className: 'btn-danger'
+                }
+            },
+            callback: function (result) {
+                if(result){
+                    //后台ajax删除
+                    $.ajax({
+                        url:"deleteSite/"+id,
+                        type:"delete",
+                        success:function(){
+                            //刷新表格
+                            $("#myTable").bootstrapTable('refresh');
+                        }
+                    })
+
+                }
+            }
+        })
+    }
+</script>
+</html>
