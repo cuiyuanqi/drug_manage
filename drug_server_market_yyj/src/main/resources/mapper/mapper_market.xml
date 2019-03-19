@@ -1,0 +1,178 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jk.mapper.MarketMapper">
+
+    <!--查询销售订单-->
+    <select id="findmarketlists" resultType="com.jk.pojo.Market">
+         select t.orderid,t.orderCode,t.orderName,t.orderDrugSpecification,t.orderNumber,t.orderGeneralize,
+          t.orderaActivity,t.orderGathering,t.orderState,t.orderTime from z_order t
+          <include refid="findmarket" ></include>
+    </select>
+
+    <sql id="findmarket">
+          <where>
+
+            <if test="market.orderCode!=null and market.orderCode!='' ">
+                 and t.orderCode = #{market.orderCode}
+            </if>
+
+            <if test="market.stateDate!=null and market.stateDate!='' ">
+                 and  t.orderTime >=  #{market.stateDate}
+            </if>
+            <if test="market.endDate!=null and market.endDate!='' ">
+                and  t.orderTime  &lt;=  #{market.endDate}
+            </if>
+          </where>
+    </sql>
+
+   <!--  退货管理 -->
+    <select id="findreturnlist" resultType="com.jk.pojo.Return">
+        select r.returnId,r.orderCode,r.returnCode,r.returnName,r.returnDate,r.purchaseName,
+        r.proposerName,r.price,r.returnState from z_return r
+        <include refid="findreturn" ></include>
+    </select>
+    <sql id="findreturn">
+        <where>
+           <if test="returns.returnCode!=null and returns.returnCode!=''">
+                and r.returnCode = #{returns.returnCode}
+           </if>
+           <if test="returns.purchaseName!=null and returns.purchaseName!=''">
+               and  r.purchaseName = #{returns.purchaseName}
+           </if>
+            <if test="returns.stateDate!=null and returns.stateDate!=''">
+                and  r.returnDate >=  #{returns.stateDate}
+            </if>
+            <if test="returns.endDate!=null and returns.endDate!=''">
+                and  r.returnDate  &lt;=  #{returns.endDate}
+            </if>
+        </where>
+    </sql>
+
+
+    <!-- 发货查询-->
+    <select id="finddeliverlist" resultType="com.jk.pojo.Market">
+        select o.orderName,o.orderDrugSpecification,o.orderNumber,
+        o.orderPrice,o.orderAggregate,o.orderTime  from  z_order o
+        <include refid="finddeliver" ></include>
+    </select>
+
+    <sql id="finddeliver">
+        <where>
+            <if test="markets.orderName!=null and markets.orderName!=''">
+                and o.orderName = #{markets.orderName}
+            </if>
+
+            <if test="markets.stateDate!=null and markets.stateDate!=''">
+                and  o.orderTime >=  #{markets.stateDate}
+            </if>
+            <if test="markets.endDate!=null and markets.endDate!=''">
+                and  o.orderTime  &lt;=  #{markets.endDate}
+            </if>
+        </where>
+    </sql>
+
+
+    <!-- 发票查询-->
+    <select id="findvouchlist" resultType="com.jk.pojo.Voucher">
+        select  v.id,v.vouchertype,o.orderCode,v.voucherDate,v.voucherfirm,v.voucherName,
+        v.voucherStatus,v.voucherdeptil,v.voucherMany  from z_voucher v left join z_order o on v.orderid = o.orderid
+        <include refid="findvouch" ></include>
+    </select>
+
+    <sql id="findvouch">
+        <where>
+
+            <if test="voucher.voucherName!=null and voucher.voucherName!=''">
+                and  v.voucherName = #{voucher.voucherName}
+            </if>
+
+            <if test="voucher.stateDate!=null and voucher.stateDate!=''">
+                and  v.voucherDate >=  #{voucher.stateDate}
+            </if>
+            <if test="voucher.endDate!=null and voucher.endDate!=''">
+                and  v.voucherDate  &lt;=  #{voucher.endDate}
+            </if>
+        </where>
+    </sql>
+
+    <!--客服新增-->
+    <insert id="findaddservicelist" parameterType="com.jk.pojo.ServiceBean">
+       insert into z_service(serviceName,serviceQQ,serviceState,serviceDate) values
+            (#{serviceName},#{serviceQQ},#{serviceState},#{serviceDate})
+    </insert>
+
+
+
+    <!-- 公告查询-->
+    <select id="findnoticelist" resultType="com.jk.pojo.Notice">
+        select n.noticeId,n.noticeName,n.noticeState,n.noticeDate from z_notice n
+          LEFT JOIN z_notice s on n.storeId = s.storeId
+        <include refid="findnotice" ></include>
+    </select>
+
+    <sql id="findnotice">
+        <where>
+
+            <if test="notice.noticeName!=null and notice.noticeName!=''">
+                and  n.noticeName = #{notice.noticeName}
+            </if>
+
+            <if test="notice.stateDate!=null and notice.stateDate!=''">
+                and  n.noticeDate >=  #{notice.stateDate}
+            </if>
+            <if test="notice.endDate!=null and notice.endDate!=''">
+                and  n.noticeDate  &lt;=  #{notice.endDate}
+            </if>
+        </where>
+    </sql>
+
+    <!--公告新增-->
+    <insert id="findaddnoticelist" parameterType="com.jk.pojo.Notice">
+       insert into z_notice(noticeName,noticeState,noticeDate) values
+            (#{noticeName},#{noticeState},#{noticeDate})
+    </insert>
+
+     <!--快递新增-->
+    <insert id="findaddexpresslist" parameterType="">
+          insert into z_express(expressName,expressTime) values(#{expressName},#{expressTime})
+    </insert>
+
+
+
+
+
+
+
+
+     <!--   <select id="findreturnlist" resultType="com.jk.pojo.Return">
+    select r.orderCode,r.returnCode,r.returnName,r.returnDate,r.purchaseName,
+    r.proposerName,r.price,r.returnState from z_return r
+        </select>
+    -->
+    <select id="findserviceById" resultType="com.jk.pojo.ServiceBean">
+         select  s.serviceId,s.serviceName,s.serviceQQ
+          from  z_service  s  where  s.serviceId = #{value}
+
+    </select>
+
+
+
+    <!--<select id="selectCusById" resultType="com.jk.pojo.Customer">
+        select * from t_customers where cusId = #{cusid}
+    </select>
+
+    <insert id="saveCus" parameterType="com.jk.pojo.Customer">
+        insert into t_customers(cusNumber,enterprise,enterpriseType,cusPhone,cusAdd,cusEmal,orderTime,loginTime) values(#{cusNumber},
+        #{enterprise},#{enterpriseType},#{cusPhone},#{cusAdd},#{cusEmal},#{orderTime},#{loginTime})
+    </insert>
+
+    <update id="updateCus" parameterType="com.jk.pojo.Customer">
+        update t_customers set cusNumber=#{cusNumber},enterprise=#{enterprise},enterpriseType=#{enterpriseType},cusPhone=#{cusPhone},cusAdd=#{cusAdd},
+        cusEmal=#{cusEmal},orderTime=#{orderTime},loginTime=#{loginTime} where cusId=#{cusId}
+    </update>
+
+    <delete id="deleteCusById">
+        delete from t_customers where cusId = #{id}
+    </delete>-->
+</mapper>
